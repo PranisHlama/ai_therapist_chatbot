@@ -1,0 +1,12 @@
+streamlit
+requests
+numpy
+pandas
+matplotlib
+seaborn
+scikit-learn
+nltk
+textblob
+xgboost
+lightgbm
+mlcroissant
