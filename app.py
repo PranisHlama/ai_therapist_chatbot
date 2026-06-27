@@ -1,7 +1,10 @@
 import streamlit as st
+import time
 
 from src.chatbot import ChatbotError, get_bot_reply
 from src.prompts import PROMPT_MODES
+
+from src.dataset_retriever import get_dataset_reply
 
 
 st.set_page_config(
@@ -16,6 +19,8 @@ st.caption(
     "prescribe medicine, or replace professional care."
 )
 
+model_name = "mistral"
+
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
@@ -26,8 +31,10 @@ with st.sidebar:
         options=list(PROMPT_MODES.keys()),
         format_func=lambda mode: PROMPT_MODES[mode]["label"],
     )
-    model_name = st.text_input("Ollama model", value="mistral")
-    st.caption("Run locally with: streamlit run app.py")
+    response_source = st.selectbox(
+        "Response Source", 
+        options=["ollama", "dataset"],
+        )
 
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
@@ -42,15 +49,19 @@ if user_question:
         st.write(user_question)
 
     with st.chat_message("assistant"):
-        with st.spinner("Thinking..."):
-            try:
-                answer = get_bot_reply(
-                    user_question=user_question,
-                    prompt_mode=prompt_mode,
-                    model_name=model_name,
-                )
-            except ChatbotError as exc:
-                answer = str(exc)
+        with st.spinner("Thinking...", show_time=True):
+            if response_source == "dataset":
+                time.sleep(2)
+                answer = get_dataset_reply(user_question)
+            else:
+                try:
+                    answer = get_bot_reply(
+                        user_question=user_question,
+                        prompt_mode=prompt_mode,
+                        model_name=model_name,
+                    )
+                except ChatbotError as exc:
+                    answer = str(exc)
 
         st.write(answer)
 

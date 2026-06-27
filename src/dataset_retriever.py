@@ -3,7 +3,7 @@ import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
-filepath = "../dataset/conversations_training.json"
+filepath = "./dataset/conversations_training.json"
 with open(filepath, "r", encoding="utf-8") as file:
     data = json.load(file)
 
