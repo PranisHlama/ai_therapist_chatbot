@@ -32,7 +32,7 @@ def get_dataset_reply(user_question, min_score=0.2):
     return match["output"]
 
 df = load_qa_dataset()
-print(df.sample(5))
+# print(df.sample(5))
 
 # Seperate input and output
 X_text = df["input"]
@@ -48,4 +48,4 @@ vectorizer = TfidfVectorizer(
 
 # Convert input text into TF-IDF numbers
 question_vectors = vectorizer.fit_transform(X_text)
-print(question_vectors.shape)
+# print(question_vectors.shape)

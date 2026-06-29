@@ -51,7 +51,7 @@ if user_question:
     with st.chat_message("assistant"):
         with st.spinner("Thinking...", show_time=True):
             if response_source == "dataset":
-                time.sleep(2)
+                time.sleep(1)
                 answer = get_dataset_reply(user_question)
             else:
                 try:

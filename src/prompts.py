@@ -73,7 +73,7 @@ Answer:
     },
 }
 
-
+## Choose one style, insert the user's question and return the final prompt
 def build_prompt(user_question, prompt_mode):
     mode = PROMPT_MODES.get(prompt_mode, PROMPT_MODES["zero_shot"])
     return mode["template"].format(user_question=user_question.strip())
