@@ -1,0 +1,53 @@
+flowchart TD
+    A[User opens Streamlit app] --> B[Choose prompt style]
+    B --> C[Choose response source]
+    C --> D[User enters mental-health question]
+    D --> E[app.py receives question]
+    E --> F[Save user message in session state]
+
+    F --> G{Response source?}
+
+    G -->|Dataset| H[Load conversations_training.json]
+    H --> I[Create input/output DataFrame]
+    I --> J[Convert dataset questions to TF-IDF vectors]
+    J --> K[Convert user question to TF-IDF vector]
+    K --> L[Calculate cosine similarity]
+    L --> M{Similarity above threshold?}
+    M -->|Yes| N[Return best matching dataset answer]
+    M -->|No| O[Return fallback rephrase message]
+
+    G -->|Ollama| P[get_bot_reply in src/chatbot.py]
+    P --> Q{Empty input?}
+    Q -->|Yes| R[Ask user to enter a question]
+    Q -->|No| S{Crisis keywords detected?}
+
+    S -->|Yes| T[Return CRISIS_RESPONSE]
+    T --> U[Skip LLM generation]
+
+    S -->|No| V{Mental-health domain?}
+    V -->|No| W[Return OUT_OF_DOMAIN_RESPONSE]
+    W --> X[Skip LLM generation]
+
+    V -->|Yes| Y[Build selected prompt template]
+    Y --> Z{Prompt mode?}
+    Z -->|zero_shot| Z1[Use zero-shot prompt]
+    Z -->|few_shot| Z2[Use few-shot prompt]
+    Z -->|reasoning_guided| Z3[Use reasoning-guided prompt]
+
+    Z1 --> AA[Send prompt to Ollama API]
+    Z2 --> AA
+    Z3 --> AA
+
+    AA --> AB[Local Ollama model generates response]
+    AB --> AC[Return model response]
+
+    N --> AD[Display assistant response in Streamlit chat]
+    O --> AD
+    R --> AD
+    U --> AD
+    X --> AD
+    AC --> AD
+
+    AD --> AE[Save assistant response in session history]
+    AE --> AF[Evaluate using sample queries]
+    AF --> AG[Record observations in logs/experiment_log.md]
