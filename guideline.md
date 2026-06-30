@@ -10,11 +10,11 @@ The required project is to build a chatbot that answers questions within a speci
 
 ## Current Project Status
 
-Based on the current code, the project currently focuses on **mental health text classification** using traditional machine learning models such as Logistic Regression, Random Forest, and XGBoost.
+The project now includes both the earlier **mental health text classification** work and a working **domain-specific LLM chatbot**.
 
-The code includes data loading, data validation, exploratory data analysis, feature engineering, TF-IDF vectorization, dimensionality reduction using SVD, model training, model comparison, and evaluation using classification metrics.
+The classification code includes data loading, data validation, exploratory data analysis, feature engineering, TF-IDF vectorization, dimensionality reduction using SVD, model training, model comparison, and evaluation using classification metrics.
 
-However, the current implementation is **not yet a domain-specific LLM chatbot**. It does not currently use GPT, LLaMA, Hugging Face text-generation models, LangChain, or a Streamlit chatbot interface.
+The chatbot code uses a local Ollama LLM endpoint with a Mistral model by default, structured prompt templates, zero-shot / few-shot / reasoning-guided prompt modes, domain guardrails, crisis-response handling, and a Streamlit chat interface in `app.py`.
 
 ---
 
@@ -247,7 +247,7 @@ The code creates a comparison dataframe for trained models and selects the best 
 
 ---
 
-# 2. Requirements Not Yet Completed
+# 2. Chatbot Requirements Status
 
 ## 2.1 LLM-Based Chatbot
 
@@ -259,37 +259,15 @@ The assignment requires a chatbot using a Large Language Model such as:
 - Gemma
 - Other open-source models
 
-The current code does not use an LLM for chatbot responses.
+The current code uses a local Ollama LLM endpoint in `src/chatbot.py`, with `mistral` as the default model name.
 
-**Status:** Not completed
+**Status:** Completed
 
-### What Needs To Be Added
+### Completed Implementation
 
-Add an LLM-based response generation module using either:
-
-- OpenAI GPT API
-- Hugging Face Transformers
-- LLaMA-based model
-- Mistral model
-- Gemma model
-
-Example direction:
-
-```python
-from transformers import pipeline
-
-chatbot = pipeline(
-    "text-generation",
-    model="mistralai/Mistral-7B-Instruct-v0.2"
-)
-```
-
-Or, if using OpenAI:
-
-```python
-from openai import OpenAI
-client = OpenAI()
-```
+- `ask_ollama()` sends prompts to `http://localhost:11434/api/generate`
+- `get_bot_reply()` applies safety checks before calling the LLM
+- The model name can be changed from the Streamlit sidebar
 
 ---
 
@@ -297,33 +275,19 @@ client = OpenAI()
 
 The assignment requires prepared and organized domain-specific prompts.
 
-The current code does not yet include structured chatbot prompts.
+The current code includes structured chatbot prompts in `src/prompts.py`.
 
-**Status:** Not completed
+**Status:** Completed
 
-### What Needs To Be Added
+### Completed Implementation
 
-Create a file such as:
-
-```text
-prompts/domain_prompts.py
-```
-
-It should include:
-
-- System prompt
-- Domain rules
+- System role instructions
+- Mental-health domain rules
 - Safety boundaries
-- Zero-shot prompt
-- Few-shot prompt
-- Chain-of-thought-style reasoning prompt or reasoning-guided prompt
-- Refusal / fallback prompt
-
-Example domain prompt:
-
-```text
-You are a mental health support chatbot. Your role is to provide general emotional support, coping suggestions, and psychoeducation. You must not diagnose, prescribe medication, or replace a licensed therapist. If a user expresses risk of self-harm, respond with crisis support guidance and encourage immediate professional help.
-```
+- Zero-shot prompt template
+- Few-shot prompt template
+- Reasoning-guided prompt template
+- Refusal behavior through the safety guardrail layer
 
 ---
 
@@ -331,20 +295,9 @@ You are a mental health support chatbot. Your role is to provide general emotion
 
 The project requires zero-shot prompting.
 
-The current code does not demonstrate zero-shot prompting.
+The current code includes a zero-shot prompt mode in `src/prompts.py`.
 
-**Status:** Not completed
-
-### What Needs To Be Added
-
-Add examples where the chatbot answers directly without examples.
-
-Example:
-
-```text
-Question: What can I do when I feel anxious before an exam?
-Instruction: Answer as a mental health support chatbot using simple, supportive language.
-```
+**Status:** Completed
 
 ---
 
@@ -352,23 +305,9 @@ Instruction: Answer as a mental health support chatbot using simple, supportive 
 
 The project requires few-shot prompting.
 
-The current code does not include curated input-output examples inside the prompt.
+The current code includes a few-shot prompt mode with curated user/assistant examples in `src/prompts.py`.
 
-**Status:** Not completed
-
-### What Needs To Be Added
-
-Add examples such as:
-
-```text
-Example 1
-User: I feel overwhelmed with work.
-Bot: It sounds like your mind is carrying too many tabs at once. Try writing down your top three tasks, choosing one small starting point, and taking a short breathing break.
-
-Example 2
-User: I cannot sleep because I keep overthinking.
-Bot: Overthinking at night can feel exhausting. You can try a simple grounding routine: dim your screen, write your worries on paper, and focus on slow breathing for a few minutes.
-```
+**Status:** Completed
 
 ---
 
@@ -378,17 +317,11 @@ The assignment mentions chain-of-thought prompting.
 
 For safe and clean implementation, the chatbot should not expose hidden reasoning to the user. Instead, it can use a structured reasoning instruction internally and return only the final response.
 
-**Status:** Not completed
+**Status:** Completed
 
-### What Needs To Be Added
+### Completed Implementation
 
-Use a prompt style like:
-
-```text
-Think through the user's concern step by step internally. Do not reveal internal reasoning. Provide a concise, supportive final answer with practical suggestions.
-```
-
-This satisfies reasoning-guided prompting without showing private reasoning.
+The `reasoning_guided` prompt mode instructs the model to think internally, avoid revealing private reasoning, and return only the final supportive answer.
 
 ---
 
@@ -396,37 +329,9 @@ This satisfies reasoning-guided prompting without showing private reasoning.
 
 The chatbot must use structured prompts to guide domain-focused answers.
 
-The current code does not yet have prompt templates.
+The current code has structured prompt templates with role, rules, user question, and answer instructions.
 
-**Status:** Not completed
-
-### What Needs To Be Added
-
-Create structured prompt templates with sections like:
-
-```text
-Role:
-You are a domain-specific assistant.
-
-Domain:
-Mental health awareness and emotional support.
-
-Rules:
-- Stay within mental health support.
-- Do not diagnose.
-- Do not prescribe medication.
-- Encourage professional help for serious cases.
-- Use simple and supportive language.
-
-User Question:
-{user_question}
-
-Answer Format:
-1. Short validation
-2. Helpful explanation
-3. Practical next steps
-4. Safety note if needed
-```
+**Status:** Completed
 
 ---
 
@@ -434,19 +339,15 @@ Answer Format:
 
 The requirement says responses must stay contextually relevant and domain-focused.
 
-The current code does not include chatbot guardrails.
+The current code includes domain and crisis guardrails in `src/safety.py`.
 
-**Status:** Not completed
+**Status:** Completed
 
-### What Needs To Be Added
+### Completed Implementation
 
-Add rules for out-of-domain questions.
-
-Example:
-
-```text
-If the user asks something outside mental health, politely say that the chatbot is designed only for mental health support and suggest asking a relevant mental-health-related question.
-```
+- Crisis keyword detection returns a safety-focused response before the LLM is called
+- Out-of-domain messages receive a domain-specific refusal response
+- Prompt templates also instruct the model to stay within the mental-health support domain
 
 ---
 
@@ -454,25 +355,18 @@ If the user asks something outside mental health, politely say that the chatbot 
 
 The deliverable requires a working chatbot application.
 
-The current code is a machine learning notebook/script, not a chatbot app.
+The current code includes a working Streamlit chatbot application in `app.py`.
 
-**Status:** Not completed
+**Status:** Completed
 
-### What Needs To Be Added
-
-Create a Streamlit app, for example:
-
-```text
-app.py
-```
-
-The app should include:
+### Completed Implementation
 
 - Chat input box
-- Chat history
-- LLM response generation
-- Domain prompt injection
-- Optional response mode selector: zero-shot, few-shot, reasoning-guided
+- Chat history through `st.session_state`
+- LLM response generation through `src.chatbot.get_bot_reply()`
+- Domain prompt injection through `src.prompts.build_prompt()`
+- Prompt mode selector for zero-shot, few-shot, and reasoning-guided responses
+- Configurable Ollama model name
 
 ---
 
@@ -480,28 +374,13 @@ The app should include:
 
 The project requires deployment using Streamlit.
 
-The current code does not include deployment files.
+The current code includes `app.py` and `requirements.txt`, and can be run locally with Streamlit.
 
-**Status:** Not completed
+**Status:** Completed for local Streamlit deployment
 
-### What Needs To Be Added
+### Run Command
 
-Add:
-
-```text
-app.py
-requirements.txt
-README.md
-.streamlit/config.toml   optional
-```
-
-Deployment options:
-
-- Streamlit Community Cloud
-- Hugging Face Spaces
-- Local Streamlit demo
-
-Run locally using:
+Run locally with:
 
 ```bash
 streamlit run app.py
@@ -513,13 +392,19 @@ streamlit run app.py
 
 The assignment requires an explanation of chatbot architecture.
 
-The current code does not include architecture documentation.
+The architecture is now clear from the code structure, but should still be copied into the README for submission.
 
-**Status:** Not completed
+**Status:** Partially completed
 
-### What Needs To Be Added
+### Current Architecture
 
-Add a section in README explaining:
+```text
+User Input -> Safety Guardrails -> Prompt Template -> Ollama LLM -> Chatbot Output
+```
+
+### Still Needed
+
+Add this architecture section to `README.md`:
 
 ```text
 User Input → Prompt Template → LLM → Response Filtering / Guardrails → Chatbot Output
@@ -533,26 +418,9 @@ Also explain that this project is **LLM-based without retrieval**, meaning the c
 
 The project requires demonstration of domain-specific responses using curated inputs.
 
-The current code does not include chatbot sample queries and responses.
+The current code includes curated sample chatbot queries in `evaluation/sample_queries.md`.
 
-**Status:** Not completed
-
-### What Needs To Be Added
-
-Create a file:
-
-```text
-evaluation/sample_queries.md
-```
-
-Include examples such as:
-
-| Query | Expected Behavior |
-|---|---|
-| I feel anxious before exams. What should I do? | Gives supportive coping steps |
-| Am I depressed? | Avoids diagnosis and suggests professional support |
-| I want to hurt myself. | Gives crisis-safe response |
-| What is the capital of France? | Politely says it is outside the chatbot domain |
+**Status:** Completed
 
 ---
 
@@ -570,7 +438,7 @@ The classification models are evaluated using accuracy, precision, recall, F1-sc
 
 ### Still Needed
 
-Add chatbot evaluation metrics such as:
+The project now has sample expected chatbot behaviors in `evaluation/sample_queries.md`. A scored chatbot evaluation table is still needed, using metrics such as:
 
 - Domain relevance
 - Helpfulness
@@ -665,7 +533,7 @@ The assignment asks for a final trained model or instructions to reproduce resul
 
 The current code trains models but does not save them.
 
-**Status:** Not completed
+**Status:** Partially completed
 
 ### What Needs To Be Added
 
@@ -732,24 +600,15 @@ domain-chatbot/
 
 The guideline asks students to maintain experimental logs.
 
-The current code prints results, but does not maintain a formal log.
+The project includes `logs/experiment_log.md` with an entry for the Streamlit chatbot setup using Ollama Mistral and prompt templates.
 
-**Status:** Not completed
+**Status:** Completed
 
-### What Needs To Be Added
-
-Create:
-
-```text
-logs/experiment_log.md
-```
-
-Suggested format:
+### Current Log Format
 
 | Date | Experiment | Model / Prompt | Result | Notes |
 |---|---|---|---|---|
-| 2026-06-27 | Baseline ML model | Logistic Regression + TF-IDF | F1: ___ | Good baseline |
-| 2026-06-27 | Few-shot chatbot prompt | Mistral/GPT | Safety: ___ | Needs better refusal |
+| 2026-06-27 | Streamlit chatbot setup | Ollama Mistral + prompt templates | Completed | App entry point is `app.py`. |
 
 ---
 
@@ -778,9 +637,11 @@ Suggested tools:
 
 ---
 
-# 3. Major Gap Between Current Code and Assignment
+# 3. Remaining Gap Between Current Code and Assignment
 
-The biggest issue is that the current implementation is mainly a **supervised machine learning text classification project**, while the assignment asks for a **domain-specific LLM chatbot**.
+The biggest original issue was that the implementation was mainly a **supervised machine learning text classification project**, while the assignment asks for a **domain-specific LLM chatbot**.
+
+That gap has now been mostly addressed by adding the Streamlit chatbot, Ollama LLM call, prompt templates, prompt modes, sample queries, and safety guardrails.
 
 ## Current Code Type
 
@@ -794,7 +655,7 @@ Input text → TF-IDF + linguistic features → ML classifier → predicted cate
 User question → structured domain prompt → LLM → domain-specific chatbot answer
 ```
 
-The existing ML work can still be useful as an optional supporting component, but it should not be presented as the main chatbot unless an LLM-based chatbot is added.
+The existing ML work can still be useful as an optional supporting component, but the final project should now be presented mainly as the **Mental Health Awareness and Emotional Support LLM Chatbot**.
 
 ---
 
@@ -825,18 +686,23 @@ The chatbot should clearly state that it:
 
 ## Must Complete
 
-1. Create an LLM chatbot module
-2. Add structured domain-specific prompts
-3. Add zero-shot prompting example
-4. Add few-shot prompting example
-5. Add reasoning-guided prompting example
-6. Build Streamlit chatbot UI
-7. Add sample chatbot queries and expected outputs
-8. Add chatbot evaluation table
-9. Write README.md
-10. Add requirements.txt
-11. Add dataset citation and description
-12. Record demo video
+1. Add chatbot evaluation table
+2. Write README.md
+3. Add dataset citation and description
+4. Add reproduction instructions for the LLM chatbot
+5. Record demo video
+
+## Completed Since Initial Review
+
+1. Created an LLM chatbot module
+2. Added structured domain-specific prompts
+3. Added zero-shot prompting
+4. Added few-shot prompting
+5. Added reasoning-guided prompting
+6. Built Streamlit chatbot UI
+7. Added sample chatbot queries and expected outputs
+8. Added `requirements.txt`
+9. Added experimental log file
 
 ---
 
@@ -1006,21 +872,21 @@ os.makedirs("img", exist_ok=True)
 
 | Requirement | Current Status | Action Needed |
 |---|---|---|
-| Working chatbot application | Not completed | Build Streamlit LLM chatbot |
-| LLM usage | Not completed | Add GPT/LLaMA/Mistral/Gemma model |
-| Domain-specific prompt | Not completed | Create structured prompt templates |
-| Zero-shot prompting | Not completed | Add zero-shot examples |
-| Few-shot prompting | Not completed | Add few-shot examples |
-| Chain-of-thought prompting | Not completed | Add reasoning-guided prompt, hide internal reasoning |
-| Domain-focused responses | Not completed | Add guardrails |
+| Working chatbot application | Completed | Run locally with `streamlit run app.py` |
+| LLM usage | Completed | Uses Ollama with Mistral by default |
+| Domain-specific prompt | Completed | Templates are in `src/prompts.py` |
+| Zero-shot prompting | Completed | Included as a prompt mode |
+| Few-shot prompting | Completed | Included as a prompt mode |
+| Chain-of-thought prompting | Completed | Reasoning-guided mode hides internal reasoning |
+| Domain-focused responses | Completed | Guardrails are in `src/safety.py` |
 | Dataset preparation | Partially completed | Add written dataset description and citation |
 | ML model training | Completed | Can be optional supporting component |
 | Evaluation metrics | Partially completed | Add chatbot evaluation table |
 | Visualization | Partially completed | Keep current plots, add chatbot evaluation plots |
-| Streamlit deployment | Not completed | Add `app.py` and deploy |
+| Streamlit deployment | Completed locally | App is available in `app.py`; external deployment optional |
 | README | Not completed | Write full README |
-| Experimental logs | Not completed | Add `logs/experiment_log.md` |
-| Final model / reproduction | Not completed | Save model or add reproduction instructions |
+| Experimental logs | Completed | Continue adding experiment rows as testing continues |
+| Final model / reproduction | Partially completed | Add reproduction instructions for Ollama/Mistral |
 | Demo video | Not completed | Record demo |
 
 ---
@@ -1147,6 +1013,6 @@ demo video link
 
 The current project has completed a strong foundation for **mental health NLP classification**, including preprocessing, feature engineering, EDA, model training, and evaluation.
 
-However, the assignment specifically requires a **domain-specific LLM chatbot without retrieval**. Therefore, the main remaining work is to add the LLM chatbot layer, prompt engineering techniques, Streamlit deployment, chatbot-specific evaluation, documentation, and demo video.
+The project now also includes the required **domain-specific LLM chatbot without retrieval**. It uses Ollama/Mistral, structured mental-health support prompts, zero-shot / few-shot / reasoning-guided prompt modes, crisis and out-of-domain guardrails, and a Streamlit interface.
 
-The best path forward is to reuse the current mental health dataset and ML work as a supporting analysis component, while building the final deliverable as a **Mental Health Awareness and Emotional Support LLM Chatbot**.
+The main remaining work is submission polish: README documentation, dataset citation, chatbot evaluation scoring, reproduction instructions, and a demo video.

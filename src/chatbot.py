@@ -20,7 +20,7 @@ def ask_ollama(prompt, model_name="mistral"):
                 "prompt": prompt,
                 "stream": False,
             },
-            timeout=120,
+            timeout=100,
         )
         response.raise_for_status()
     except requests.RequestException as exc:

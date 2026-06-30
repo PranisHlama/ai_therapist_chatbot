@@ -16,6 +16,7 @@ DOMAIN_KEYWORDS = (
     "anxious",
     "depression",
     "depressed",
+    "pressure",
     "sad",
     "lonely",
     "loneliness",
